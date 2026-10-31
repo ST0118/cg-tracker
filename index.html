@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>College CGPA & SGPA Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+<!-- HEADER SECTION  -->
+    <header class="app-header">
+      <div class="logo-area">
+        <span class="logo-icon">🎓</span>
+        <div>
+          <h1>College CGPA Tracker</h1>
+          <p class="subtitle">Calculate your Semester SGPA & Overall CGPA effortlessly</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="addSemesterBtn" class="btn btn-primary">
+          <span class="btn-icon">＋</span> Add Semester
+        </button>
+        <button id="loadSampleBtn" class="btn btn-outline" title="Load sample records for demonstration">
+          ⚡ Demo Data
+        </button>
+        <button id="clearAllBtn" class="btn btn-danger-outline" title="Reset and delete all records">
+          🗑️ Clear All
+        </button>
+      </div>
+    </header>
+<!-- Overall CGPA & Stats Dashboard -->
+    <section class="dashboard-card">
+      <div class="cgpa-highlight">
+        <span class="cgpa-label">Cumulative GPA (CGPA)</span>
+        <div class="cgpa-number-wrapper">
+          <span class="cgpa-value" id="overallCgpa">0.00</span>
+          <span class="cgpa-scale">/ 10.0</span>
+        </div>
+        <span class="cgpa-badge" id="cgpaBadge">No Data</span>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-value" id="totalSemestersCount">0</span>
+          <span class="stat-name">Semesters</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="totalSubjectsCount">0</span>
+          <span class="stat-name">Subjects</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="totalCreditsCount">0</span>
+          <span class="stat-name">Total Credits</span>
+        </div>
+      </div>
+    </section>
+<!-- Grading Scale Information Accordion -->
+    <details class="grading-scale-info">
+      <summary>
+        ℹ️ Current Grading Scale: <strong>Standard 10-Point Scale</strong> (Click to view & customize)
+      </summary>
+      <div class="scale-content">
+        <p>Formula used:</p>
+        <div class="formula-box">
+          <strong>SGPA</strong> = Σ(Credits × Grade Points) ÷ Σ(Credits)<br />
+          <strong>CGPA</strong> = Σ(All Semesters' Credits × Grade Points) ÷ Σ(All Semesters' Credits)
+        </div>
+        <p class="scale-note">
+          <strong>Note for Students:</strong> Agar aapke college ka grade scale alag hai (e.g. 4.0 scale ya alag letter grades), to aap <code>script.js</code> ke top par <code>GRADE_SCALE</code> object ko easily customize kar sakte hain.
+        </p>
+        <div class="scale-table-wrapper" id="gradeScaleTableWrapper">
+        <!-- Injected dynamically by script.js -->
+        </div>
+      </div>
+    </details>
+<!-- Semesters List Container -->
+    <main class="main-content">
+      <div id="semestersContainer" class="semesters-list">
+      </div>
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon">📚</div>
+        <h2>Abhi koi semester nahi joda gaya hai</h2>
+        <p>Apna pehla semester add karne ke liye upar diye gaye <strong>"＋ Add Semester"</strong> button par click karein, ya quick preview ke liye <strong>"⚡ Demo Data"</strong> try karein.</p>
+        <button id="emptyAddSemesterBtn" class="btn btn-primary">
+          <span class="btn-icon">＋</span> Add Your First Semester
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <!--MODAL: ADD / EDIT SEMESTER-->
+  <div id="semesterModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="semesterModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="semesterModalTitle">Add Semester</h3>
+        <button class="modal-close-btn" data-close="semesterModal">&times;</button>
+      </div>
+      <form id="semesterForm" novalidate>
+        <input type="hidden" id="semesterEditId" value="" />
+        
+        <div class="form-group">
+          <label for="semesterNameInput">Semester Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="semesterNameInput" 
+            placeholder="e.g., Semester 1, Fall 2026, 3rd Sem" 
+            autocomplete="off"
+            required 
+          />
+          <span class="error-text" id="semesterNameError">Semester name cannot be empty.</span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="semesterModal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveSemesterBtn">Save Semester</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!--MODAL: ADD / EDIT SUBJECT-->
+  <div id="subjectModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="subjectModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="subjectModalTitle">Add Subject</h3>
+        <button class="modal-close-btn" data-close="subjectModal">&times;</button>
+      </div>
+      <form id="subjectForm" novalidate>
+        <input type="hidden" id="subjectSemesterId" value="" />
+        <input type="hidden" id="subjectEditId" value="" />
+        <!-- Subject Name -->
+        <div class="form-group">
+          <label for="subjectNameInput">Subject Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="subjectNameInput" 
+            placeholder="e.g., Data Structures, Engineering Math, Physics" 
+            autocomplete="off"
+            required 
+          />
+          <span class="error-text" id="subjectNameError">Subject name is required.</span>
+        </div>
+        <div class="form-row">
+          <!-- Credit Value -->
+          <div class="form-group">
+            <label for="subjectCreditInput">Credits <span class="required">*</span></label>
+            <input 
+              type="number" 
+              id="subjectCreditInput" 
+              placeholder="e.g., 4 or 3" 
+              min="0.5" 
+              max="20" 
+              step="0.5"
+              required 
+            />
+            <span class="error-text" id="subjectCreditError">Enter valid credits (> 0).</span>
+          </div>
+<!-- Grade Selection / Input Mode -->
+          <div class="form-group">
+            <label for="subjectGradeSelect">Letter Grade</label>
+            <select id="subjectGradeSelect">
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="subjectGradePointInput">Grade Point (Numeric value) <span class="required">*</span></label>
+          <input 
+            type="number" 
+            id="subjectGradePointInput" 
+            placeholder="e.g., 10, 9, 8.5" 
+            min="0" 
+            max="10" 
+            step="0.1" 
+            required 
+          />
+          <span class="error-text" id="subjectGradePointError">Grade point must be between 0 and 10.</span>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="subjectModal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveSubjectBtn">Save Subject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
