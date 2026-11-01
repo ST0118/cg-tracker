@@ -1,28 +1,20 @@
 /* ========================================================
    COLLEGE CGPA & SGPA TRACKER - JAVASCRIPT
-   Beginner-friendly vanilla JS with full explanations
    ======================================================== */
 
-/**
- * ========================================================
- * NOTE FOR STUDENTS: GRADE POINT SCALE CONFIGURATION
- * --------------------------------------------------------
- * Agar aapke college / university ka grading scale alag hai
- * (jaise 4.0 GPA scale ya alag letter grades), to aap
- * neeche diye gaye GRADE_SCALE array ko easily modify kar sakte hain.
- * ========================================================
- */
 const GRADE_SCALE = [
   { letter: "O", points: 10, description: "Outstanding (10)" },
-  { letter: "A+", points: 9, description: "Excellent (9)" },
-  { letter: "A", points: 8, description: "Very Good (8)" },
-  { letter: "B+", points: 7, description: "Good (7)" },
-  { letter: "B", points: 6, description: "Above Average (6)" },
-  { letter: "C", points: 5, description: "Average (5)" },
-  { letter: "P", points: 4, description: "Pass (4)" },
+  { letter: "A", points: 9, description: "Excellent (9)" },
+  { letter: "B", points: 8, description: "Very Good (8)" },
+  { letter: "C", points: 7, description: "Good (7)" },
+  { letter: "D", points: 6, description: "Above Average (6)" },
+  { letter: "P", points: 5, description: "Average (5)" },
   { letter: "F", points: 0, description: "Fail / Reappear (0)" },
+  { letter: "I", points: 0, description: "Incomplete (0)" },
+  { letter: "ABS", points: 0, description: "ABSENT (0)" },
   { letter: "Custom", points: 10, description: "Manual / Custom Points..." }
 ];
+
 
 // LocalStorage key for persisting data
 const STORAGE_KEY = "college_cgpa_tracker_records";
@@ -124,7 +116,10 @@ function calculateSGPA(subjects) {
     totalPoints += cred * pts;
   });
 
-  const sgpa = totalCredits > 0 ? totalPoints / totalCredits : 0;
+  let sgpa = 0;
+  if (totalCredits > 0) {
+    sgpa = totalPoints / totalCredits;
+  }
   return {
     sgpa: parseFloat(sgpa.toFixed(2)),
     totalCredits: parseFloat(totalCredits.toFixed(1)),
@@ -151,7 +146,10 @@ function calculateOverallCGPA() {
     });
   });
 
-  const cgpa = grandTotalCredits > 0 ? grandTotalPoints / grandTotalCredits : 0;
+  let cgpa = 0;
+  if (grandTotalCredits > 0) {
+    cgpa = grandTotalPoints / grandTotalCredits;
+  }
   return {
     cgpa: parseFloat(cgpa.toFixed(2)),
     totalSemesters: semesters.length,
