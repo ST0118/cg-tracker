@@ -1,6 +1,13 @@
-/* ========================================================
+/*
+  Beginner notes:
+  - A CSS rule has a selector, then { properties: values; }.
+  - A selector chooses which HTML elements to style.
+  - Values beginning with -- are reusable CSS variables, used with var(--name).
+  - Classes in HTML (class="..." ) are selected here with a dot, for example .btn.
+*//* ========================================================
    COLLEGE CGPA TRACKER - STYLESHEET
    ======================================================== */
+/* :root is the top-level HTML element. Variables here can be reused everywhere. */
 :root {
   --primary: #4338ca;
   --primary-hover: #3730a3;
@@ -33,7 +40,7 @@
   
   --transition: all 0.2s ease-in-out;
 }
-/* Base Reset */
+/* Base Reset: remove browser defaults so spacing is predictable. */
 * {
   margin: 0;
   padding: 0;
@@ -54,13 +61,14 @@ body {
   max-width: 1000px;
   margin: 0 auto;
 }
-/* Header */
+/* Header: arrange the logo, title, and buttons. */
 .app-header {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-direction: column;
   gap: 16px;
   margin-bottom: 24px;
 }
+/* On wider screens (768px+), switch to a horizontal layout. */
 @media (min-width: 768px) {
   .app-header {
     flex-direction: row;
@@ -69,7 +77,7 @@ body {
   }
 }
 .logo-area {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   align-items: center;
   gap: 14px;
 }
@@ -78,7 +86,7 @@ body {
   background: var(--primary-light);
   width: 56px;
   height: 56px;
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-lg);
@@ -98,13 +106,13 @@ body {
 }
 
 .header-actions {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
 
-/* Dashboard / Overall CGPA Banner */
+/* Dashboard: the large area showing CGPA and totals. */
 .dashboard-card {
   background: linear-gradient(135deg, #312e81 0%, #4338ca 100%);
   color: #ffffff;
@@ -112,11 +120,12 @@ body {
   padding: 24px 28px;
   box-shadow: var(--shadow-md);
   margin-bottom: 24px;
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-direction: column;
   gap: 24px;
 }
 
+/* On wider screens (768px+), switch to a horizontal layout. */
 @media (min-width: 768px) {
   .dashboard-card {
     flex-direction: row;
@@ -126,7 +135,7 @@ body {
 }
 
 .cgpa-highlight {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-direction: column;
   gap: 6px;
 }
@@ -140,7 +149,7 @@ body {
 }
 
 .cgpa-number-wrapper {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   align-items: baseline;
   gap: 8px;
 }
@@ -170,7 +179,7 @@ body {
 }
 
 .stats-grid {
-  display: grid;
+  display: grid; /* Grid arranges children in rows and columns. */
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   background-color: rgba(255, 255, 255, 0.1);
@@ -180,7 +189,7 @@ body {
 }
 
 .stat-box {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-direction: column;
   align-items: center;
   text-align: center;
@@ -200,7 +209,7 @@ body {
   margin-top: 2px;
 }
 
-/* Grading Scale Info Accordion */
+/* Grading Scale: styles the expandable details/summary panel. */
 .grading-scale-info {
   background-color: var(--bg-card);
   border: 1px solid var(--border);
@@ -274,9 +283,9 @@ body {
   font-weight: 600;
 }
 
-/* Semesters List & Cards */
+/* Semester cards: one card is created for each semester. */
 .semesters-list {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-direction: column;
   gap: 20px;
 }
@@ -305,11 +314,12 @@ body {
   padding: 18px 22px;
   background-color: #ffffff;
   border-bottom: 1px solid var(--border);
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-direction: column;
   gap: 12px;
 }
 
+/* On screens 680px+, show the semester heading and controls side by side. */
 @media (min-width: 680px) {
   .semester-header {
     flex-direction: row;
@@ -319,7 +329,7 @@ body {
 }
 
 .semester-title-group {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
@@ -350,12 +360,12 @@ body {
 }
 
 .semester-controls {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   align-items: center;
   gap: 8px;
 }
 
-/* Subjects Table */
+/* Subjects table: display each subject and its grades. */
 .subjects-wrapper {
   overflow-x: auto;
 }
@@ -464,7 +474,7 @@ body {
   line-height: 1.6;
 }
 
-/* Buttons */
+/* Buttons: shared button style plus color/size variations. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -538,7 +548,7 @@ body {
   color: var(--danger);
 }
 
-/* Modals & Forms */
+/* Modals and forms: popup dialogs and their input fields. */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -547,7 +557,7 @@ body {
   bottom: 0;
   background-color: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(4px);
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   align-items: center;
   justify-content: center;
   padding: 16px;
@@ -578,7 +588,7 @@ body {
 .modal-header {
   padding: 18px 22px;
   border-bottom: 1px solid var(--border);
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   align-items: center;
   justify-content: space-between;
 }
@@ -608,7 +618,7 @@ form {
 }
 
 .form-group {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   flex-direction: column;
   margin-bottom: 16px;
 }
@@ -659,13 +669,13 @@ form {
 }
 
 .form-row {
-  display: grid;
+  display: grid; /* Grid arranges children in rows and columns. */
   grid-template-columns: 1fr 1fr;
   gap: 14px;
 }
 
 .modal-footer {
-  display: flex;
+  display: flex; /* Flexbox lines up this element's direct children. */
   justify-content: flex-end;
   gap: 10px;
   margin-top: 24px;
