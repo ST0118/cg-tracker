@@ -4,17 +4,15 @@
 
 const GRADE_SCALE = [
   { letter: "O", points: 10, description: "Outstanding (10)" },
-  { letter: "A", points: 9, description: "Excellent (9)" },
-  { letter: "B", points: 8, description: "Very Good (8)" },
-  { letter: "C", points: 7, description: "Good (7)" },
-  { letter: "D", points: 6, description: "Above Average (6)" },
-  { letter: "P", points: 5, description: "Average (5)" },
+  { letter: "A+", points: 9, description: "Excellent (9)" },
+  { letter: "A", points: 8, description: "Very Good (8)" },
+  { letter: "B+", points: 7, description: "Good (7)" },
+  { letter: "B", points: 6, description: "Above Average (6)" },
+  { letter: "C", points: 5, description: "Average (5)" },
+  { letter: "P", points: 4, description: "Pass (4)" },
   { letter: "F", points: 0, description: "Fail / Reappear (0)" },
-  { letter: "I", points: 0, description: "Incomplete (0)" },
-  { letter: "ABS", points: 0, description: "ABSENT (0)" },
   { letter: "Custom", points: 10, description: "Manual / Custom Points..." }
 ];
-
 
 // LocalStorage key for persisting data
 const STORAGE_KEY = "college_cgpa_tracker_records";
@@ -35,7 +33,9 @@ const emptyStateEl = document.getElementById("emptyState");
 
 // Header Action Buttons
 const addSemesterBtn = document.getElementById("addSemesterBtn");
+const addSgpaBtn = document.getElementById("addSgpaBtn");
 const emptyAddSemesterBtn = document.getElementById("emptyAddSemesterBtn");
+const emptyAddSgpaBtn = document.getElementById("emptyAddSgpaBtn");
 const loadSampleBtn = document.getElementById("loadSampleBtn");
 const clearAllBtn = document.getElementById("clearAllBtn");
 
@@ -46,6 +46,16 @@ const semesterModalTitle = document.getElementById("semesterModalTitle");
 const semesterEditIdInput = document.getElementById("semesterEditId");
 const semesterNameInput = document.getElementById("semesterNameInput");
 const semesterNameError = document.getElementById("semesterNameError");
+const sgpaModal = document.getElementById("sgpaModal");
+const sgpaForm = document.getElementById("sgpaForm");
+const sgpaModalTitle = document.getElementById("sgpaModalTitle");
+const sgpaEditIdInput = document.getElementById("sgpaEditId");
+const sgpaSemesterNameInput = document.getElementById("sgpaSemesterNameInput");
+const sgpaSemesterNameError = document.getElementById("sgpaSemesterNameError");
+const sgpaValueInput = document.getElementById("sgpaValueInput");
+const sgpaValueError = document.getElementById("sgpaValueError");
+const sgpaCreditsInput = document.getElementById("sgpaCreditsInput");
+const sgpaCreditsError = document.getElementById("sgpaCreditsError");
 
 // Subject Modal
 const subjectModal = document.getElementById("subjectModal");
@@ -116,10 +126,7 @@ function calculateSGPA(subjects) {
     totalPoints += cred * pts;
   });
 
-  let sgpa = 0;
-  if (totalCredits > 0) {
-    sgpa = totalPoints / totalCredits;
-  }
+  const sgpa = totalCredits > 0 ? totalPoints / totalCredits : 0;
   return {
     sgpa: parseFloat(sgpa.toFixed(2)),
     totalCredits: parseFloat(totalCredits.toFixed(1)),
@@ -137,19 +144,23 @@ function calculateOverallCGPA() {
   let totalSubjects = 0;
 
   semesters.forEach((sem) => {
-    sem.subjects.forEach((sub) => {
-      const cred = parseFloat(sub.credits) || 0;
-      const pts = parseFloat(sub.gradePoint) || 0;
-      grandTotalCredits += cred;
-      grandTotalPoints += cred * pts;
-      totalSubjects += 1;
-    });
+    if (sem.entryType === "manual") {
+      const credits = parseFloat(sem.totalCredits) || 0;
+      const sgpa = parseFloat(sem.manualSGPA) || 0;
+      grandTotalCredits += credits;
+      grandTotalPoints += credits * sgpa;
+    } else {
+      sem.subjects.forEach((sub) => {
+        const cred = parseFloat(sub.credits) || 0;
+        const pts = parseFloat(sub.gradePoint) || 0;
+        grandTotalCredits += cred;
+        grandTotalPoints += cred * pts;
+        totalSubjects += 1;
+      });
+    }
   });
 
-  let cgpa = 0;
-  if (grandTotalCredits > 0) {
-    cgpa = grandTotalPoints / grandTotalCredits;
-  }
+  const cgpa = grandTotalCredits > 0 ? grandTotalPoints / grandTotalCredits : 0;
   return {
     cgpa: parseFloat(cgpa.toFixed(2)),
     totalSemesters: semesters.length,
@@ -203,7 +214,10 @@ function renderApp() {
 
   // 3. Render Each Semester Card
   semesters.forEach((sem) => {
-    const semStats = calculateSGPA(sem.subjects);
+    const isManualSemester = sem.entryType === "manual";
+    const semStats = isManualSemester
+      ? { sgpa: parseFloat(sem.manualSGPA) || 0, totalCredits: parseFloat(sem.totalCredits) || 0 }
+      : calculateSGPA(sem.subjects || []);
 
     const semCard = document.createElement("section");
     semCard.className = "semester-card";
@@ -211,7 +225,15 @@ function renderApp() {
 
     // Generate table rows for subjects
     let subjectsTableHtml = "";
-    if (sem.subjects.length === 0) {
+    if (isManualSemester) {
+      subjectsTableHtml = `
+        <div class="manual-semester-summary">
+          <span class="manual-summary-icon">✓</span>
+          <span>SGPA entered directly from results. ${semStats.totalCredits} total credits are included in CGPA.</span>
+          <button class="btn btn-outline btn-sm" onclick="openEditSGPAModal('${sem.id}')">Edit SGPA</button>
+        </div>
+      `;
+    } else if (!sem.subjects || sem.subjects.length === 0) {
       subjectsTableHtml = `
         <div class="semester-empty">
           <p>Is semester mein abhi koi subject nahi joda gaya hai.</p>
@@ -411,6 +433,7 @@ document.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     closeModal(semesterModal);
+    closeModal(sgpaModal);
     closeModal(subjectModal);
   }
 });
@@ -471,6 +494,94 @@ semesterForm.addEventListener("submit", (e) => {
   saveToLocalStorage();
   renderApp();
   closeModal(semesterModal);
+});
+
+function clearSGPAErrors() {
+  sgpaSemesterNameError.classList.remove("show");
+  sgpaValueError.classList.remove("show");
+  sgpaCreditsError.classList.remove("show");
+  sgpaSemesterNameInput.classList.remove("input-error");
+  sgpaValueInput.classList.remove("input-error");
+  sgpaCreditsInput.classList.remove("input-error");
+}
+
+function openAddSGPAModal() {
+  sgpaModalTitle.textContent = "Add Semester SGPA";
+  sgpaEditIdInput.value = "";
+  sgpaSemesterNameInput.value = `Semester ${semesters.length + 1}`;
+  sgpaValueInput.value = "";
+  sgpaCreditsInput.value = "";
+  clearSGPAErrors();
+  openModal(sgpaModal);
+  sgpaSemesterNameInput.focus();
+}
+
+function openEditSGPAModal(semesterId) {
+  const sem = semesters.find((s) => s.id === semesterId && s.entryType === "manual");
+  if (!sem) return;
+
+  sgpaModalTitle.textContent = "Edit Semester SGPA";
+  sgpaEditIdInput.value = sem.id;
+  sgpaSemesterNameInput.value = sem.name;
+  sgpaValueInput.value = sem.manualSGPA;
+  sgpaCreditsInput.value = sem.totalCredits;
+  clearSGPAErrors();
+  openModal(sgpaModal);
+  sgpaSemesterNameInput.focus();
+}
+
+sgpaForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  clearSGPAErrors();
+
+  const name = sgpaSemesterNameInput.value.trim();
+  const sgpa = parseFloat(sgpaValueInput.value);
+  const credits = parseFloat(sgpaCreditsInput.value);
+  let isValid = true;
+
+  if (name === "") {
+    sgpaSemesterNameInput.classList.add("input-error");
+    sgpaSemesterNameError.classList.add("show");
+    isValid = false;
+  }
+  if (isNaN(sgpa) || sgpa < 0 || sgpa > 10) {
+    sgpaValueInput.classList.add("input-error");
+    sgpaValueError.classList.add("show");
+    isValid = false;
+  }
+  if (isNaN(credits) || credits <= 0) {
+    sgpaCreditsInput.classList.add("input-error");
+    sgpaCreditsError.classList.add("show");
+    isValid = false;
+  }
+  if (!isValid) return;
+
+  const editId = sgpaEditIdInput.value;
+  if (editId) {
+    const sem = semesters.find((s) => s.id === editId);
+    if (sem) {
+      sem.name = name;
+      sem.manualSGPA = sgpa;
+      sem.totalCredits = credits;
+    }
+  } else {
+    semesters.push({
+      id: "sem-" + Date.now(),
+      name: name,
+      subjects: [],
+      entryType: "manual",
+      manualSGPA: sgpa,
+      totalCredits: credits
+    });
+  }
+
+  saveToLocalStorage();
+  renderApp();
+  closeModal(sgpaModal);
+});
+
+[sgpaSemesterNameInput, sgpaValueInput, sgpaCreditsInput].forEach((input) => {
+  input.addEventListener("input", clearSGPAErrors);
 });
 
 semesterNameInput.addEventListener("input", () => {
@@ -683,7 +794,9 @@ function clearAllData() {
 // ========================================================
 
 addSemesterBtn.addEventListener("click", openAddSemesterModal);
+addSgpaBtn.addEventListener("click", openAddSGPAModal);
 emptyAddSemesterBtn.addEventListener("click", openAddSemesterModal);
+emptyAddSgpaBtn.addEventListener("click", openAddSGPAModal);
 loadSampleBtn.addEventListener("click", loadDemoData);
 clearAllBtn.addEventListener("click", clearAllData);
 
