@@ -22,6 +22,9 @@
         <button id="addSemesterBtn" class="btn btn-primary">
           <span class="btn-icon">＋</span> Add Semester
         </button>
+        <button id="addSgpaBtn" class="btn btn-outline">
+          <span class="btn-icon">＋</span> Add SGPA
+        </button>
         <button id="loadSampleBtn" class="btn btn-outline" title="Load sample records for demonstration">
           ⚡ Demo Data
         </button>
@@ -81,11 +84,16 @@
       </div>
       <div id="emptyState" class="empty-state">
         <div class="empty-icon">📚</div>
-        <h2>Abhi koi semester nahi joda gaya hai</h2>
-        <p>Apna pehla semester add karne ke liye upar diye gaye <strong>"＋ Add Semester"</strong> button par click karein, ya quick preview ke liye <strong>"⚡ Demo Data"</strong> try karein.</p>
-        <button id="emptyAddSemesterBtn" class="btn btn-primary">
-          <span class="btn-icon">＋</span> Add Your First Semester
-        </button>
+        <h2>Abhi koi semester add nahi kiya 👀</h2>
+        <p>Subjects ke saath semester add karo, ya SGPA pehle se pata hai? Use seedha add kar do!</p>
+        <div class="empty-actions">
+          <button id="emptyAddSemesterBtn" class="btn btn-primary">
+            <span class="btn-icon">＋</span> Add Semester
+          </button>
+          <button id="emptyAddSgpaBtn" class="btn btn-outline">
+            <span class="btn-icon">＋</span> Add SGPA
+          </button>
+        </div>
       </div>
     </main>
   </div>
@@ -114,6 +122,41 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline" data-close="semesterModal">Cancel</button>
           <button type="submit" class="btn btn-primary" id="saveSemesterBtn">Save Semester</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT SGPA DIRECTLY -->
+  <div id="sgpaModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="sgpaModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="sgpaModalTitle">Add Semester SGPA</h3>
+        <button class="modal-close-btn" data-close="sgpaModal">&times;</button>
+      </div>
+      <form id="sgpaForm" novalidate>
+        <input type="hidden" id="sgpaEditId" value="" />
+        <div class="form-group">
+          <label for="sgpaSemesterNameInput">Semester Name <span class="required">*</span></label>
+          <input type="text" id="sgpaSemesterNameInput" placeholder="e.g., Semester 1" autocomplete="off" />
+          <span class="error-text" id="sgpaSemesterNameError">Semester name cannot be empty.</span>
+        </div>
+        <p class="form-hint">Enter the SGPA from your results and the semester's total credits. Credits are needed to calculate CGPA correctly.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="sgpaValueInput">SGPA <span class="required">*</span></label>
+            <input type="number" id="sgpaValueInput" min="0" max="10" step="0.01" placeholder="e.g. 8.45" />
+            <span class="error-text" id="sgpaValueError">Enter an SGPA from 0 to 10.</span>
+          </div>
+          <div class="form-group">
+            <label for="sgpaCreditsInput">Total Credits <span class="required">*</span></label>
+            <input type="number" id="sgpaCreditsInput" min="0.1" step="0.1" placeholder="e.g. 22" />
+            <span class="error-text" id="sgpaCreditsError">Enter credits greater than 0.</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="sgpaModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save SGPA</button>
         </div>
       </form>
     </div>
